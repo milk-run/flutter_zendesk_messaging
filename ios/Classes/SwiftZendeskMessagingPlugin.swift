@@ -20,7 +20,8 @@ public class SwiftZendeskMessagingPlugin: NSObject, FlutterPlugin {
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let method = call.method
         let arguments = call.arguments as? Dictionary<String, Any>
-        let zendeskMessaging = ZendeskMessaging(flutterPlugin: self, channel: channel)
+        let rootViewController = UIApplication.shared.delegate?.window??.rootViewController
+        let zendeskMessaging = ZendeskMessaging(flutterPlugin: self, channel: channel, rootViewController: rootViewController)
 
         // chat sdk method channels
         switch(method){
@@ -36,7 +37,7 @@ public class SwiftZendeskMessagingPlugin: NSObject, FlutterPlugin {
                 if (!isInitialize) {
                     print("\(TAG) - Messaging needs to be initialized first.\n")
                 }
-                zendeskMessaging.show(rootViewController: UIApplication.shared.delegate?.window??.rootViewController)
+                zendeskMessaging.show()
                 break
             case "loginUser":
                 if (!isInitialize) {

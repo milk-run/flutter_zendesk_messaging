@@ -2,6 +2,17 @@ import UIKit
 import ZendeskSDKMessaging
 import ZendeskSDK
 
+extension UIViewController {
+    func addCloseButton() {
+        let button = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(onClose))
+        navigationItem.rightBarButtonItem = button
+    }
+
+    @objc func onClose() {
+        self.dismiss(animated: true, completion: nil)
+    }
+}
+
 public class ZendeskMessaging: NSObject {
     private static var initializeSuccess: String = "initialize_success"
     private static var initializeFailure: String = "initialize_failure"
@@ -14,10 +25,12 @@ public class ZendeskMessaging: NSObject {
     
     private var zendeskPlugin: SwiftZendeskMessagingPlugin? = nil
     private var channel: FlutterMethodChannel? = nil
+    private var rootViewController: UIViewController? = nil
 
-    init(flutterPlugin: SwiftZendeskMessagingPlugin, channel: FlutterMethodChannel) {
+    init(flutterPlugin: SwiftZendeskMessagingPlugin, channel: FlutterMethodChannel, rootViewController: UIViewController?) {
         self.zendeskPlugin = flutterPlugin
         self.channel = channel
+        self.rootViewController = rootViewController
     }
     
     func initialize(channelKey: String) {
@@ -35,10 +48,13 @@ public class ZendeskMessaging: NSObject {
         }
     }
 
-    func show(rootViewController: UIViewController?) {
+    func show() {
         guard let messagingViewController = Zendesk.instance?.messaging?.messagingViewController() else { return }
-        guard let rootViewController = rootViewController else { return }
-        rootViewController.present(messagingViewController, animated: true, completion: nil)
+        guard let rootViewController = self.rootViewController else { return }
+        let navController = UINavigationController()
+        navController.viewControllers = [messagingViewController]
+        messagingViewController.addCloseButton()
+        rootViewController.present(navController, animated: true)
         print("\(self.TAG) - show")
     }
     
